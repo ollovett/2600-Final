@@ -83,21 +83,56 @@ void setup() {
           delay(2000);
       }
   }
-  // publish and subscribe
-  client.publish(topic, "Hi EMQX I'm ESP32 ^^");
+  //subscribe
   client.subscribe(topic);
   }
 }
 
+//lights up led based on input received from broker
 void callback(char *topic, byte *payload, unsigned int length) {
-  Serial.print("Message arrived in topic: ");
-  Serial.println(topic);
-  Serial.print("Message:");
   for (int i = 0; i < length; i++) {
       Serial.print((char) payload[i]);
   }
-  Serial.println();
-  Serial.println("-----------------------");
+  switch ((char) payload[1]) {
+    case 0:              // end game if 0
+      ledcWrite(0, 0);
+      ledcWrite(1, 0);
+      ledcWrite(2, 0);
+      ledcWrite(3, 0);
+      ledcWrite(4, 0);
+      ledcWrite(5, 0);
+      ledcWrite(6, 0);
+      ledcWrite(7, 0);
+      ledcWrite(8, 0);  
+      break;
+    case 1:              // Receive the number '1'
+      ledcWrite(0, 255);
+      break;
+    case 2:              // Receive the number '2'
+      ledcWrite(1, 255);
+      break;
+    case 3:              // Receive the number '3'
+      ledcWrite(2, 255);
+      break;
+    case 4:              // Receive the number '4'
+      ledcWrite(3, 255);
+      break;
+    case 5:              // Receive the number '5'
+      ledcWrite(4, 255);
+      break;
+    case 6:              // Receive the number '6'
+      ledcWrite(5, 255);
+      break;
+    case 7:              // Receive the number '7'
+      ledcWrite(6, 255);  
+      break;
+    case 8:              // Receive the number '8'
+      ledcWrite(7, 255);  
+      break;
+    case 9:              // Receive the number '9'
+      ledcWrite(8, 255);  
+      break;
+  }
 }
 
 void loop() {
@@ -111,32 +146,35 @@ void loop() {
 void handleControl(unsigned long value) {
   // Handle the commands
   switch (value) {
+    case 0xFFA857:              // Recieve Play button
+      client.publish(topic, "0");
+      break;
     case 0xFF30CF:              // Receive the number '1'
-      ledcWrite(0, 255);
+      client.publish(topic, "1");
       break;
     case 0xFF18E7:              // Receive the number '2'
-      ledcWrite(1, 255);
+      client.publish(topic, "2");
       break;
     case 0xFF7A85:              // Receive the number '3'
-      ledcWrite(2, 255);
+      client.publish(topic, "3");
       break;
     case 0xFF10EF:              // Receive the number '4'
-      ledcWrite(3, 255);
+      client.publish(topic, "4");
       break;
     case 0xFF38C7:              // Receive the number '5'
-      ledcWrite(4, 255);
+      client.publish(topic, "5");
       break;
     case 0xFF5AA5:              // Receive the number '6'
-      ledcWrite(5, 255);
+      client.publish(topic, "6");
       break;
     case 0xFF42BD:              // Receive the number '7'
-      ledcWrite(6, 255);  
+      client.publish(topic, "7");  
       break;
     case 0xFF4AB5:              // Receive the number '8'
-      ledcWrite(7, 255);  
+      client.publish(topic, "8");  
       break;
     case 0xFF52AD:              // Receive the number '9'
-      ledcWrite(8, 255);  
+      client.publish(topic, "9");  
       break;
   }
 }
