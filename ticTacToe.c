@@ -27,6 +27,19 @@ char board[9];
 char player1 = 'X';
 char player2 = 'O';
 char computer = 'O';
+char payload = ' ';
+
+int messageArrived(void *context, char *topicName, int topicLen, MQTTClient_message *message)
+{
+    printf("Message arrived\n");
+    printf("   topic: %s\n", topicName);
+    printf("   message: .*s\n", message.payloadlen, message.payload);
+
+    payload = message;
+    MQTTClient_freeMessage(&message);
+    MQTTClient_free(topicName);
+    return 1;
+}
 
 int main()
 {
@@ -38,6 +51,10 @@ int main()
 
     MQTTClient_create(&client, ADDRESS, CLIENTID,
         MQTTCLIENT_PERSISTENCE_NONE, NULL);
+    
+    const char* topic = "mytopic";
+    int qos = 2;
+    rc = MQTTClient_subscribe(client, topic, qos);
   
     // MQTT Connection parameters
     conn_opts.keepAliveInterval = 20;
@@ -58,8 +75,7 @@ int main()
 
         printf("Welcome to Tic Tac Toe!\n");
         printf("\n");
-        printf("Enter 1 for Player vs. Player.\n");
-        printf("Enter 2 for Player vs Random Computer.\n");
+        printf("Your are O\n");
         scanf("%d", &mode);
 
         if (mode == 1)
@@ -104,62 +120,8 @@ int main()
             {
                 printf("It is a Tie!");
             }
-
-            printf("\nWould you like to play again? Enter 1 for Yes or 2 for No: \n");
-            scanf("%d", &loop);
-
-            if (loop == 2)
-            {
-                printf("Thank you for playing!");
-                break;
-            }
-        }
-
-        if (mode == 2)
-        {
-            printf("Player 1 is X and Computer is O.\n");
-
-            printExBoard();
-
-            clearBoard();
-
-            while (winner == ' ' && checkTie() != 0)
-            {
-                printBoard();
-                printf("Player 1's Turn (X)\n");
-                playerMove1();
-                winner = checkWinner();
-                if (winner != ' ' || checkTie() == 0)
-                {
-                    break;
-                }
-                printBoard();
-                printf("Computer's Turn (O)\n");
-                computerMove();
-                winner = checkWinner();
-                if (winner != ' ' || checkTie() == 0)
-                {
-                    break;
-                }
-            }
-
-            printBoard();
-
-            if (winner == player1)
-            {
-                printf("You Win!");
-            }
-            else if (winner == computer)
-            {
-                printf("You lose!");
-            }
-            else
-            {
-                printf("It is a Tie!");
-            }
-
-            printf("\nWould you like to play again? Enter 1 for Yes or 2 for No: \n");
-            scanf("%d", &loop);
+            
+            loop = 2;
 
             if (loop == 2)
             {
@@ -167,7 +129,6 @@ int main()
                 break;
             }
         }
-
     } while (loop == 1);
 
    return 0;
@@ -223,8 +184,7 @@ void playerMove1()
 
     do
     {
-        printf("Enter your move(1-9): ");
-        scanf("%d", &place1);
+        place 1 = payload - '0';
         place1--;
 
         if (board[place1] != ' ')
@@ -234,6 +194,16 @@ void playerMove1()
         else
         {
             board[place1] = player1;
+            pubmsg.payload = payload;
+            pubmsg.payloadlen = strlen(payload);
+            pubmsg.qos = QOS;
+            pubmsg.retained = 0;
+            MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token);
+            printf("Waiting for up to %d seconds for publication of %s\n"
+                    "on topic %s for client with ClientID: %s\n",
+                    (int)(TIMEOUT/1000), PAYLOAD, TOPIC, CLIENTID);
+            rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+            printf("Message with delivery token %d delivered\n", token);
             break;
         }
     } while (board[place1] != ' ');
@@ -257,6 +227,16 @@ void playerMove2()
         else
         {
             board[place2] = player2;
+            pubmsg.payload = payload;
+            pubmsg.payloadlen = strlen(payload);
+            pubmsg.qos = QOS;
+            pubmsg.retained = 0;
+            MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token);
+            printf("Waiting for up to %d seconds for publication of %s\n"
+                    "on topic %s for client with ClientID: %s\n",
+                    (int)(TIMEOUT/1000), PAYLOAD, TOPIC, CLIENTID);
+            rc = MQTTClient_waitForCompletion(client, token, TIMEOUT);
+            printf("Message with delivery token %d delivered\n", token);
             break;
         }
     } while (board[place2] != ' ');
