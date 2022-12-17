@@ -7,3 +7,4 @@ if [[ "$input" -eq "1" ]]; then
     ./ticTacToe.out
 elif [[ "$SECONDS" -eq "10" ]]; then
     ./autoToe.out
+fi
