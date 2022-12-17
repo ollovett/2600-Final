@@ -76,10 +76,7 @@ int main()
         printf("Welcome to Tic Tac Toe!\n");
         printf("\n");
         printf("Your are O\n");
-        scanf("%d", &mode);
 
-        if (mode == 1)
-        {
             printf("Player 1 is X and Player 2 is O.\n");
 
             printExBoard();
@@ -128,7 +125,6 @@ int main()
                 printf("Thank you for playing!");
                 break;
             }
-        }
     } while (loop == 1);
 
    return 0;
@@ -184,7 +180,7 @@ void playerMove1()
 
     do
     {
-        place 1 = payload - '0';
+        place1 = payload - '0';
         place1--;
 
         if (board[place1] != ' ')
@@ -227,8 +223,9 @@ void playerMove2()
         else
         {
             board[place2] = player2;
-            pubmsg.payload = payload;
-            pubmsg.payloadlen = strlen(payload);
+            place2++;
+            pubmsg.payload = place2;
+            pubmsg.payloadlen = strlen(place2);
             pubmsg.qos = QOS;
             pubmsg.retained = 0;
             MQTTClient_publishMessage(client, TOPIC, &pubmsg, &token);
