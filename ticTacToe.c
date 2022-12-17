@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include "string.h"
+#include "MQTTClient.h"
+
+#define ADDRESS     "tcp://broker.emqx.io:1883"
+#define CLIENTID    "emqx_test"
+#define TOPIC       "testtopic/1"
+#define QOS         1
+#define TIMEOUT     10000L
 
 //declare functions
 void clearBoard();
@@ -22,6 +30,25 @@ char computer = 'O';
 
 int main()
 {
+    MQTTClient client;
+    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+    MQTTClient_message pubmsg = MQTTClient_message_initializer;
+    MQTTClient_deliveryToken token;
+    int rc;
+
+    MQTTClient_create(&client, ADDRESS, CLIENTID,
+        MQTTCLIENT_PERSISTENCE_NONE, NULL);
+  
+    // MQTT Connection parameters
+    conn_opts.keepAliveInterval = 20;
+    conn_opts.cleansession = 1;
+
+    if ((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
+    {
+        printf("Failed to connect, return code %d\n", rc);
+        exit(-1);
+    }
+
     int loop = 1;
 
     do
